@@ -1,0 +1,263 @@
+<odoo>
+    <record id="hr_applicant_view_form_reclutamiento_kuale" model="ir.ui.view">
+        <field name="name">hr.applicant.form_reclutamiento_kuale</field>
+        <field name="model">hr.applicant</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_form"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//button[@name='archive_applicant']" position="after">
+                    <field name="status_stage_id" invisible="1"/>
+                    <button string="Viable" name="set_viable"
+                            type="object" data-hotkey="x" invisible="process != 'no_viable'"/>
+                    <div invisible="process == 'no_viable'">
+                        <button string="Editar entrevista" name="interview_modal" invisible="status_stage_id != 0"
+                                type="object" data-hotkey="x"/>
+                        <!--button string="Consult interview" name="consult_interview"  invisible="status_stage_id != 1" data-hotkey="x"/-->
+                        <button string="Enviar entrevista" name="send_interview" invisible="status_stage_id != 0"
+                                type="object"
+                                data-hotkey="x"/>
+                        <button string="Solicitar complemento" name="request_complement"
+                                invisible="status_stage_id != 4"
+                                type="object" data-hotkey="x"/>
+                        <button string="Solicitar Documentacion" name="request_documentation"
+                                invisible="status_stage_id != 4"
+                                type="object" data-hotkey="x"/>
+                    </div>
+                </xpath>
+                <xpath expr="//div[@class='oe_title pe-0']" position="before">
+                    <label for="process" class="oe_edit_only"/>
+                    <field name="process"/>
+                </xpath>
+                <xpath expr="//field[@name='active']" position="before">
+                    <widget name="web_ribbon" title="Nuevo" bg_color="text-bg-secondary" invisible="process != 'new'"/>
+                    <div invisible="process != 'progress'">
+                        <widget name="web_ribbon" title="En progreso" bg_color="text-bg-warning"
+                                invisible="status_stage_id == 0"/>
+                    </div>
+                    <widget name="web_ribbon" title="Rechazado no viable" bg_color="text-bg-danger"
+                            invisible="process != 'no_viable' and application_status !='refused'"/>
+
+                    <widget name="web_ribbon" title="Rechazado viable" bg_color="text-bg-success"
+                            invisible="process != 'viable' and application_status !='refused'"/>
+                    <div invisible="process != 'progress'">
+                        <widget name="web_ribbon" title="En progreso" bg_color="text-bg-warning"
+                                invisible="status_stage_id == 0"/>
+                    </div>
+                </xpath>
+                <xpath expr="//group[@name='recruitment_contract']/label[1]" position="before">
+                    <label for="job_tab_id"/>
+                    <div class="o_row">
+                        <field name="job_tab_id"/>
+                    </div>
+                </xpath>
+                <xpath expr="//group[@name='recruitment_contract']" position="after">
+                    <group string="Solicitud de empleo" name="recruitment_jobRequest">
+                        <field name="requisition_id"/>
+                        <field name="about_vacancy" string="Origen"/>
+                        <field name="curp"/>
+                        <field name="previous_experience"/>
+                        <field name="birthdate"/>
+                        <field name="birthplace"/>
+                        <field name="state_birth"/>
+                        <field name="age"/>
+                        <field name="gender"/>
+                        <field name="scholarship"/>
+                        <field name="is_studying"/>
+                        <field name="current_schedule" invisible="is_studying != 'yes'"/>
+                        <field name="current_degree" invisible="is_studying != 'yes'"/>
+                        <field name="has_ine"/>
+                        <field name="full_address"/>
+                        <field name="full_fiscal_address"/>
+                        <field name="has_driver_license"/>
+                        <field name="driver_license_number" invisible="has_driver_license != 'yes'"/>
+                        <field name="driver_license_validity" invisible="has_driver_license != 'yes'"/>
+                        <field name="has_experience"/>
+                        <field name="rehired" invisible="1"/>
+                    </group>
+                </xpath>
+                <xpath expr="//field[@name='applicant_properties']" position="after">
+                    <field name="experiencies_ids" string="" invisible="has_experience != 'yes'">
+                        <tree editable="bottom">
+                            <field name="companyE"/>
+                            <field name="cityE"/>
+                            <field name="periodE"/>
+                            <field name="positionE"/>
+                            <field name="salaryE"/>
+                            <field name="supervisorE"/>
+                            <field name="referenceE"/>
+                            <field name="reasonE"/>
+                        </tree>
+                    </field>
+                </xpath>
+                <xpath expr="//page[@name='application_summary']" position="after">
+                    <page string="Historial Kuale" name="rehire" invisible="rehired != True">
+                        <group name="recruitment_rehire">
+                            <field name="re_company"/>
+                            <field name="re_branch"/>
+                            <field name="re_boss"/>
+                            <field name="re_date"/>
+                            <field name="re_lastDay"/>
+                            <field name="termination_Date"/>
+                            <field name="re_reason"/>
+                            <field name="re_comments"/>
+                            <button name="rehire_action" string="Rehire" type="object"/>
+                        </group><!---->
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='application_summary']" position="after">
+                    <page string="Adicionales" name="additional">
+                        <group name="recruitment_jobAdditional">
+                            <field name="medical_unity"/>
+                            <field name="marital_status"/>
+                            <field name="nationality"/>
+                            <field name="other_nationality" invisible="nationality != 'other'"/>
+                            <field name="full_address"/>
+                            <field name="between_streets"/>
+                            <field name="additional_ref"/>
+                            <field name="address_details"/>
+                            <field name="bank_account_ids">
+                                <tree editable="top" string="Cuentas">
+                                    <field name="account_number"/>
+                                    <field name="interbank_clabe"/>
+                                    <field name="payroll_card_number"/>
+                                    <field name="bank"/>
+                                </tree>
+                            </field>
+                            <field name="beneficiaries_ids">
+                                <tree editable="top" string="Beneficiarios">
+                                    <field name="beneficiary_name"/>
+                                    <field name="beneficiary_relationship"/>
+                                    <field name="other_relationship"/>
+                                    <field name="beneficiary_percentage"/>
+                                </tree>
+                            </field>
+                            <field name="social_security_number"/>
+                            <field name="rfc_number"/>
+                            <field name="blood_type"/>
+                            <field name="has_allergy"/>
+                            <field name="allergy" invisible="has_allergy != 'yes'"/>
+                            <field name="has_medical_tx"/>
+                            <field name="medical_tx" invisible="has_medical_tx != 'yes'"/>
+                            <field name="emergency_contacts">
+                                <tree editable="top" string="Contactos de emergencia">
+                                    <field name="name"/>
+                                    <field name="relationship"/>
+                                    <field name="phone_number"/>
+                                </tree>
+                            </field>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//page[@name='additional']" position="after">
+                    <page string="Talla Uniforme" name="clothing_size">
+                        <button name="update_garments" string="Actualizar" type="object"/>
+                        <field name="clothing_size" nolabel="1">
+                            <tree editable="top" string="Clothing Size">
+                                <field name="allowed_product_templates" column_invisible="1"/>
+                                <field name="product_template_id" string="Prenda"/>
+                                <field name="product_id" string="Variante"/>
+                                <field name="quantity" string="Cantidad"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+            </data>
+        </field>
+    </record>
+    <record id="hr_applicant_kanban_reclutamiento_kuale" model="ir.ui.view">
+        <field name="name">hr.applicant.kanban_reclutamiento_kuale</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_kanban_view_applicant"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//a[@name='action_makeMeeting']" position="after">
+                    <field name="color_process" invisible="1"/>
+                    <a role="menuitem" name="modal_selected" type="object" class="dropdown-item">Seleccionar</a>
+                </xpath>
+                <xpath expr="//t[@t-name='kanban-box']//div[contains(@t-attf-class, 'oe_kanban_card')]"
+                       position="replace">
+                    <div t-attf-class="{{'oe_kanban_color_' + kanban_getcolor(record.color_process.raw_value) + ' oe_kanban_color_' + record.process }} oe_kanban_card oe_kanban_global_click oe_applicant_kanban oe_semantic_html_override">
+                        <field name="date_closed" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <div class="ribbon ribbon-top-right" invisible="not date_closed">
+                            <span class="text-bg-success">Hired</span>
+                        </div>
+                        <span class="badge rounded-pill text-bg-danger float-end me-4"
+                              invisible="application_status != 'refused'">Refused
+                        </span>
+                        <span class="badge rounded-pill text-bg-secondary float-end me-4"
+                              invisible="application_status != 'archived'">Archived
+                        </span>
+                        <div class="oe_kanban_content">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <b class="o_kanban_record_title mt8" t-if="record.partner_name.raw_value">
+                                        <field name="partner_name"/>
+                                        <br/>
+                                    </b>
+                                    <t t-else="1">
+                                        <i class="o_kanban_record_title">
+                                            <field name="name"/>
+                                        </i>
+                                        <br/>
+                                    </t>
+                                    <div class="o_kanban_record_subtitle"
+                                         invisible="context.get('search_default_job_id', False)">
+                                        <field name="job_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <field name="categ_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <t t-if="record.partner_mobile.raw_value">
+                                <i class="fa fa-mobile mr4" role="img" aria-label="Mobile" title="Mobile"/>
+                                <field name="partner_mobile" widget="phone"/>
+                                <br/>
+                            </t>
+                            <field name="applicant_properties" widget="properties"/>
+                            <div class="o_kanban_record_bottom mt4">
+                                <div class="oe_kanban_bottom_left">
+                                    <div class="float-start mr4" groups="base.group_user">
+                                        <field name="priority" widget="priority"/>
+                                    </div>
+                                    <div class="o_kanban_inline_block mr8">
+                                        <field name="activity_ids" widget="kanban_activity"/>
+                                    </div>
+                                </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <a name="action_open_attachments" type="object">
+                                        <span title='Documents'>
+                                            <i class='fa fa-paperclip' role="img" aria-label="Documents"/>
+                                            <t t-esc="record.attachment_number.raw_value"/>
+                                        </span>
+                                    </a>
+                                    <field name="kanban_state" widget="state_selection"/>
+                                    <field name="legend_normal" invisible="1"/>
+                                    <field name="legend_blocked" invisible="1"/>
+                                    <field name="legend_done" invisible="1"/>
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </xpath>
+                <xpath expr="//ul[@class='oe_kanban_colorpicker text-center']" position="replace">
+                </xpath>
+            </data>
+        </field>
+    </record>
+    <record id="hr_applicant_search_reclutamiento_kuale" model="ir.ui.view">
+        <field name="name">hr.applicant.search_reclutamiento_kuale</field>
+        <field name="model">hr.applicant</field>
+        <field name="inherit_id" ref="hr_recruitment.hr_applicant_view_search_bis"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//filter[@name='refused']" position="after">
+                    <filter string="No viable" name="process_1" domain="[('process', '=', 'no_viable')]"/>
+                </xpath>
+            </data>
+        </field>
+    </record>
+</odoo>

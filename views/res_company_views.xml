@@ -1,0 +1,107 @@
+<odoo>
+    <!--Base Company Inherit Kanban view-->
+    <record id="res_company_view_form_reclutamiento_kuale" model="ir.ui.view">
+        <field name="name">res.company.form_reclutamiento_kuale</field>
+        <field name="model">res.company</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//page[@name='general_info']" position="before" >
+                    <page string="Company Information" name="company_info" invisible="parent_id">
+                        <group>
+                            <group name="new_group" >
+                                <field name="business_name" />
+                                <field name="rfc" />
+                                <field name="legal_representative" />
+                                <field name="fiscal_address" />
+                                <field name="business_type" />
+                                <field name="imss_registration" />
+                                <field name="certificate_for_stamp" />
+                                <field name="opening_date" />
+                            </group>
+                        </group>
+                     </page>
+                    <page string="Branch Information" name="branch_info"  invisible="parent_id in [None,False]">
+                        <group>
+                            <group name="new_group_branch">
+                                <field name="no_store" />
+                                <field name="branch_type" />
+                                <field name="reports_to" />
+                                <field name="trainers" widget="many2many_tags"/>
+                                <field name="general_guide"/>
+                                <field name="training_available" />
+                                <field name="construction_area" />
+                                <field name="land_area" />
+                                <field name="layout" widget="binary" filename="layout_filename" string="Layout (Sketch)"/>
+                                <field name="layout_filename" invisible="1"/>
+                                <field name="insurance_policy" widget="binary" filename="insurance_policy_filename" string="Insurance Policy"/>
+                                <field name="insurance_policy_filename" invisible="1"/>
+                            </group>
+                        </group>
+                    </page>
+                </xpath>
+                <xpath expr="//field[@name='business_name']" position="attributes">
+                       <attribute name="required">parent_id in [None,False]</attribute>
+                </xpath>
+                <xpath expr="//field[@name='rfc']" position="attributes">
+                       <attribute name="required">parent_id in [None,False]</attribute>
+                </xpath>
+                <xpath expr="//field[@name='vat']" position="before" >
+                    <field name="between_streets" invisible="parent_id in [None,False]"/>
+                    <field name="opening_date" string="Beggining of activities" invisible="parent_id in [None,False]"/>
+                </xpath>
+                <xpath expr="//field[@name='vat']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='company_registry']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                 <xpath expr="//field[@name='bounce_formatted']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                 <xpath expr="//field[@name='catchall_formatted']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                 <xpath expr="//field[@name='default_from_email']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+            </data>
+        </field>
+    </record>
+    <record id="res_company_view_tree_reclutamiento_kuale" model="ir.ui.view">
+        <field name="name">res.company.form_reclutamiento_kuale_tree</field>
+        <field name="model">res.company</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="base.view_company_tree"/>
+        <field name="arch" type="xml">
+            <data>
+                 <xpath expr="//field[@name='sequence']" position="before" >
+                    <field name="parent_id" column_invisible="True" />
+                      <field name="is_parent_id_set" column_invisible="True"/>
+                </xpath>
+                 <xpath expr="//field[@name='partner_id']" position="after" >
+                    <field name="business_name"/>
+                    <field name="rfc" />
+                </xpath>
+                <xpath expr="//field[@name='name']" position="before" >
+                    <field name="no_store"/>
+                    <field name="branch_type" />
+                </xpath>
+                 <xpath expr="//field[@name='active']" position="after" >
+                    <field name="layout" widget="binaryurl" filename="layout_filename" string="Layout (Croquis)"/>
+                    <field name="layout_filename" column_invisible="True"/>
+                 </xpath>
+                 <xpath expr="//field[@name='no_store']" position="attributes">
+                     <attribute name="column_invisible">context.get('is_parent_id_set') </attribute>
+                 </xpath>
+                 <xpath expr="//field[@name='branch_type']" position="attributes">
+                     <attribute name="column_invisible">context.get('is_parent_id_set') </attribute>
+                 </xpath>
+                 <xpath expr="//field[@name='rfc']" position="attributes">
+                        <attribute name="column_invisible">context.get('is_parent_id_set') == True</attribute>
+                 </xpath>
+            </data>
+        </field>
+    </record>
+</odoo>

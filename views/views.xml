@@ -1,0 +1,162 @@
+<odoo>
+    <data>
+        <menuitem
+                name="Reclutamiento Kuale"
+                id="reclutamiento__kuale_menu_root"/>
+
+        <menuitem
+                name="Clínicas"
+                id="reclutamiento__kuale_menu_root2"
+                sequence="30"/>
+        <menuitem
+            name="Clínicas"
+            id="reclutamiento__kuale_clinic_kanban"
+            action="reclutamiento__kuale_clinic_action"
+            parent="reclutamiento__kuale_menu_root2"/>
+
+        <menuitem
+                name="Requisiciones de contratación"
+                id="reclutamiento__kuale_requisiciones_kanban"
+                action="reclutamiento_kuale_requisitions_kanban_action"
+                parent="reclutamiento__kuale_menu_root"
+                sequence="1"/>
+
+
+        <menuitem
+                name="Catálogo"
+                id="reclutamiento__kuale_catalogo"
+                parent="reclutamiento__kuale_menu_root"/>
+
+
+        <!--  -->
+        <menuitem
+                name="Tipo de sucursales"
+                id="reclutamiento__kuale_subsidiaries"
+                action="reclutamiento__kuale_branch_type_action"
+                parent="reclutamiento__kuale_catalogo"/>
+
+        <!-- -->
+        <menuitem
+                name="Tipo de giros" id="reclutamiento__kuale_typeturns"
+                action="reclutamiento__kuale_businessType_action"
+                parent="reclutamiento__kuale_catalogo"/>
+
+        <!---->
+        <menuitem
+                name="Representantes Legales" id="reclutamiento__kuale_legalrep"
+                action="reclutamiento__kuale_legalRep_action"
+                parent="reclutamiento__kuale_catalogo"/>
+
+         <!---->
+        <menuitem
+                name="Registros patronales" id="reclutamiento__kuale_employeerrecord"
+                action="reclutamiento__kuale_imssRegistration_action"
+                parent="reclutamiento__kuale_catalogo"/>
+
+         <!-- -->
+        <menuitem
+                name="Certificado sello digital" id="reclutamiento__kuale_certificatedigital"
+                action="reclutamiento__kuale_stampCertificate_action"
+                parent="reclutamiento__kuale_catalogo"/>
+
+        <menuitem
+                name="Segmentos"
+                id="reclutamiento__kuale_segments"
+                action="reclutamiento__kuale_segments_action"
+                parent="reclutamiento__kuale_catalogo"/>
+
+        <menuitem
+                name="Tipo de formato" id="reclutamiento__kuale_typeformat"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento__kuale_type_format_action"
+        />
+
+        <menuitem
+                name="Tipo de contratos" id="reclutamiento__kuale_typecontract"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento__kuale_contract_type_action"/>
+
+        <menuitem
+                name="Formato de contratos" id="reclutamiento__kuale_contractformat"
+                parent="reclutamiento__kuale_catalogo"/>
+
+        <menuitem
+                name="Actividades" id="reclutamiento__kuale_activity"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento__kuale_activities_action"
+        />
+
+        <menuitem
+                name="Herramientas y conocimientos" id="reclutamiento__kuale_tools"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento__kuale_tools_knowledge_action"
+        />
+
+        <menuitem
+                name="Escolaridad" id="reclutamiento__kuale_education"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_schooling_action"/>
+
+        <menuitem
+                name="Idiomas" id="reclutamiento__kuale_language"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento__kuale_language_action"/>
+
+         <menuitem
+                name="Rango de edad" id="reclutamiento__kuale_age"
+                action="reclutamiento_kuale_age_action"
+                parent="reclutamiento__kuale_catalogo"/>
+         <menuitem
+                name="Competencias" id="reclutamiento__kuale_competence"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_competencies_action"
+         />
+         <menuitem
+                name="Relaciones internas" id="reclutamiento__kuale_internalrelations"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_int_rel_action"
+         />
+         <menuitem
+                name="Relaciones externas" id="reclutamiento__kuale_externalrelations"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_ext_rel_action"
+         />
+
+        <menuitem
+                name="Estándares de rendimiento" id="reclutamiento__kuale_performancestandards"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_perf_action"
+        />
+
+         <menuitem
+                name="Beneficios y prestaciones" id="reclutamiento__kuale_benefits"
+                parent="reclutamiento__kuale_catalogo"/>
+
+         <menuitem
+                name="Bonos" id="reclutamiento__kuale_bonus"
+                parent="reclutamiento__kuale_catalogo"/>
+
+         <menuitem
+                name="Tabuladores de puesto" id="reclutamiento__kuale_jobtabs"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento__kuale_job_tab_action"/>
+
+         <menuitem
+                name="Usuarios" id="reclutamiento__kuale_users"
+                parent="reclutamiento__kuale_catalogo"/>
+
+         <menuitem
+                name="Recordatorios" id="reclutamiento__kuale_reminders"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_requisitions_tree_action"/>
+        <menuitem
+                name="Días" id="reclutamiento__kuale_weekday"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_weekdays_action"/>
+        <menuitem
+                name="Género" id="reclutamiento__kuale_gender"
+                parent="reclutamiento__kuale_catalogo"
+                action="reclutamiento_kuale_gender_action"/>
+
+    </data>
+</odoo>

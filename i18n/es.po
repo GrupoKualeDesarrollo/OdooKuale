@@ -1,0 +1,2 @@
+msgid "Birthdate"
+msgstr "Fecha de nacimiento"

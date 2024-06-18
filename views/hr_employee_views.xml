@@ -1,0 +1,40 @@
+<odoo>
+    <record id="hr_employee_form_reclutamiento_kuale" model="ir.ui.view">
+        <field name="name">hr.employee.form_reclutamiento_kuale</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//field[@name='coach_id']" position="after">
+                    <field name="rol_employee"/>
+                </xpath>
+            </data>
+        </field>
+    </record>
+   <!-- <data>
+    Slide Channel Inherit Form view-->
+        <!--<record id="inherit_view_employee_form" model="ir.ui.view">
+            <field name="name">inherit.view.employee.form"</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <data>
+                    <xpath expr="//page[@name='hr_settings']" position="after" >
+                        <page string="Credenciales" name="hr_credentials">
+                                <field name="credentials" nolabel="1" required="1">
+                                    <tree editable="bottom">
+                                        <field name="name" required="1"/>
+                                        <field name="description" required="1"/>
+                                        <field name="format_id" required="1"/>
+                                    </tree>
+                                </field>
+                        </page>
+                    </xpath>
+
+                </data>
+            </field>
+        </record>
+
+    </data>-->
+</odoo>

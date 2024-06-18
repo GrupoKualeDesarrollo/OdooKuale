@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="reclutamiento_kuale_job_tab_tree_view" model="ir.ui.view">
+            <field name="name">reclutamiento__kuale.job_tab.view.tree</field>
+            <field name="model">reclutamiento__kuale.job_tab</field>
+            <field name="arch" type="xml">
+                <tree string="Job Tab">
+                    <field name="active" column_invisible="True" />
+                    <field name="name" />
+                    <!--<field name="company_id" groups="base.group_multi_company" />-->
+                    <field name="company_id"/>
+                    <field name="department_id" />
+                    <field name="salary" />
+                    <field name="report_to_id"/>
+                    <field name="subordinates_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                </tree>
+            </field>
+        </record>
+        <record id="reclutamiento_kuale_job_tab_form_view" model="ir.ui.view">
+            <field name="name">reclutamiento__kuale.job_tab.view.form</field>
+            <field name="model">reclutamiento__kuale.job_tab</field>
+            <field name="arch" type="xml">
+                <form string="Job Tab">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="active" invisible="1" />
+                                <field name="name" />
+                                <!--<field name="company_id" groups="base.group_multi_company" />-->
+                                <field name="company_id" />
+                                <field name="department_id" />
+                                <field name="salary" />
+                            </group>
+                            <group>
+                                <field name="report_to_id" widget="many2one_avatar_user"/>
+                                <field name="address" />
+                                <field name="subordinates_ids" widget="many2many_tags_avatar"/>
+                                <field name="business_name" />
+                            </group>
+
+                        </group>
+                        <notebook>
+                            <!--<page name="offered" string="Offered" groups="hr.group_hr_user">-->
+                            <page name="offered" string="Offered">
+                                <group>
+                                    <group>
+                                        <field name="daily_salary_contract"/>
+                                        <field name="daily_salary_integrated"/>
+                                        <field name="net_monthly_salary"/>
+                                        <field name="capped_net_monthly_salary"/>
+                                        <field name="gross_monthly_salary"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="benefits_allowances" string="Benefits and Allowances">
+                                <group>
+                                    <group>
+                                        <field name="type_benefits"/>
+                                        <field name="benefits"/>
+                                        <field name="description_policies"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page name="bonus" string="Bonus/Commissions/Incentives">
+                                <group>
+                                    <group>
+                                        <field name="type_bonus"/>
+                                        <field name="name_bonus"/>
+                                        <field name="amount_bonus"/>
+                                    </group>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="reclutamiento__kuale_job_tab_action" model="ir.actions.act_window">
+            <field name="name">Job tab</field>
+            <field name="res_model">reclutamiento__kuale.job_tab</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new job tab
+                </p>
+            </field>
+        </record>
+
+
+
+    </data>
+</odoo>

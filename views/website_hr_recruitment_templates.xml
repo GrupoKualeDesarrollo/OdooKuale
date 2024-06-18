@@ -1,0 +1,1930 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="index" name="Jobs Kuale">
+        <t t-call="website.layout">
+            <div id="wrap" class="o_website_hr_recruitment_jobs_list o_colored_level o_cc o_cc2">
+                <!-- Snippet area -->
+                <div class="oe_structure" id="oe_structure_hr_recruitment_index_top"/>
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-light border-top shadow-sm d-print-none w-100 o_colored_level">
+                    <div class="container">
+                        <div class="d-flex flex-column flex-md-row flex-md-wrap flex-lg-nowrap align-items-center justify-content-between w-100">
+                            <!-- Title -->
+                            <span class="navbar-brand h5 my-0 me-sm-auto">Nuestras ofertas de trabajo</span>
+                            <!-- Customizations -->
+                            <t t-call="website_hr_recruitment.topbar_customizations"/>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Content -->
+                <div class="container oe_website_jobs">
+                    <div class="row pt48 pb16">
+                        <div class="d-none" id="jobs_grid_left"/>
+                        <div class="col-lg" id="jobs_grid">
+                            <div class="row flex-column">
+                                <t t-if="not jobs">
+                                    <div class="col">
+                                        <div t-if="search" class="alert alert-warning text-center" role="alert">
+                                            No results found for '<span t-out="search"/>'.
+                                        </div>
+                                        <div class="alert alert-info text-center text-muted"
+                                             groups="hr_recruitment.group_hr_recruitment_manager">
+                                            Create new job pages from the
+                                            <strong>+
+                                                <i>New</i>
+                                            </strong>
+                                            top-right button.
+                                        </div>
+                                        <div class="col-lg-12 text-center pt24">
+                                            <p class="h5 fw-light text-muted pb24">
+                                                There are currently no open job opportunities,
+                                                <br class="mb-2"/>
+                                                but feel free to <span class="fw-bold">contact us</span> for a
+                                                spontaneous application.
+                                            </p>
+                                            <img class="img-fluid o_we_custom_image pb24"
+                                                 src="/website_hr_recruitment/static/src/img/job_not_found.svg"
+                                                 style="width: 50% !important;" alt="Job not found"/>
+                                        </div>
+                                    </div>
+                                </t>
+                                <t t-elif="search and original_search">
+                                    <div class="col">
+                                        <div class="alert alert-info text-center" role="alert">
+                                            No results found for '<span t-out="original_search"/>'. Showing results for
+                                            '<span t-out="search"/>'.
+                                            <t t-set="search" t-value="original_search"/>
+                                        </div>
+                                    </div>
+                                </t>
+                                <div t-foreach="jobs" t-as="job" class="col-lg mb32">
+                                    <div t-attf-class="card #{not job.website_published and 'o_jobs_unpublished'}">
+                                        <a t-attf-href="/jobs/#{ slug(job) }"
+                                           t-attf-class="text-decoration-none text-reset"
+                                           draggable="false">
+                                            <div class="card-body p-4">
+                                                <div class="mt0 d-flex justify-content-between align-items-center">
+                                                    <h3 t-field="job.name"/>
+                                                    <span t-if="not job.website_published"
+                                                          class="badge bg-danger mb8 p-2">unpublished
+                                                    </span>
+                                                </div>
+                                                <t t-set="job_desc_edition_placeholder">Insert a Job Description...</t>
+                                                <h5 t-if="job.no_of_recruitment >= 3"
+                                                    class="text-reset"
+                                                    t-out="'%s posiciones abiertas' % job.no_of_recruitment"/>
+                                                <div class="oe_empty text-muted mb16"
+                                                     t-field="job.description"
+                                                     t-att-data-editor-message="job_desc_edition_placeholder"/>
+                                                <div class="o_job_infos d-flex flex-column">
+                                                    <div t-foreach="jobs.requisition_ids" t-as="req">
+                                                        <i class="fa fa-map-marker fa-fw"/>
+                                                        <span t-field="req.branch_ids" class="fw-light"
+                                                              t-options='{"fields": ["name"], "no_tag_br": True, "null_text": "Remote"}'/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Pager -->
+                        <div class='navbar mb-3 w-100'>
+                            <t t-call="website.pager">
+                                <t t-set="classname" t-valuef="mx-auto"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Snippet area -->
+                <div class="oe_structure" id="oe_structure_hr_recruitment_index_bottom"/>
+            </div>
+        </t>
+    </template>
+
+    <template id="extend_hr_recruitment_detail" inherit_id="website_hr_recruitment.detail" name="Job Detail Kuale"
+              track="1">
+        <xpath expr="//div[@id='wrap']" position="replace">
+            <div id="wrap" class="js_hr_recruitment">
+                <div itemscope="itemscope" itemtype="https://schema.org/JobPosting">
+                    <meta t-if="job.contract_type_id" itemprop="employmentType"
+                          t-att-content="job.contract_type_id.sudo().name"/>
+                    <meta t-if="job.published_date" itemprop="datePosted" t-att-content="job.published_date"/>
+                    <meta itemprop="directApply" content="true"/>
+                    <span itemprop="hiringOrganization" itemscope="itemscope"
+                          itemtype="https://schema.org/Organization">
+                        <meta itemprop="name" t-att-content="job.company_id.name"/>
+                        <meta itemprop="logo" t-attf-content="/logo.png?company=#{job.company_id.id}"/>
+                    </span>
+                    <span itemprop="jobLocation" itemscope="itemscope" itemtype="https://schema.org/Place">
+                        <meta itemprop="address" t-att-content="job.address_id.sudo().contact_address"/>
+                    </span>
+                    <!-- Job name -->
+                    <section class="pb32">
+                        <div class="container">
+                            <div class="mt32">
+                                <div class="float-end">
+                                    <a role="button" t-attf-href="/jobs/apply2/#{job.id}"
+                                       class="btn btn-primary btn-lg float-end">Aplicar ahora
+                                    </a>
+                                </div>
+                                <h1>
+                                    <span t-field="job.company_id.name"/>
+                                    <span t-field="job.name"/>
+                                </h1>
+                                <!--Sucursales disponibles-->
+                                <div t-foreach="job.requisition_ids" t-as="req">
+                                    <t t-if="req.status == 30">
+                                        <i class="fa fa-map-marker fa-fw"/>
+                                        <span class="fw-light" t-options='{"no_tag_br": True, "null_text": "Remote"}'>
+                                            Sucursal<span t-field="req.branch_ids.name"/>:
+                                            <t t-set="student" t-value="'No acepta estudiantes.'"></t>
+                                            <t t-foreach="req.details" t-as="det">
+                                                <span t-field="det.shift.name"/>,
+                                                <t t-if="det.student == 'yes'">
+                                                    <t t-set="student" t-value="'Acepta estudiantes.'"></t>
+                                                </t>
+                                            </t>
+                                            <span t-out="student"/>
+                                        </span>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <!-- Job Description -->
+                    <div t-field="job.website_description"/>
+                    <div class="oe_structure">
+                        <section class="o_job_bottom_bar mt24 mb48">
+                            <div class="text-center">
+                                <a role="button" t-attf-href="/jobs/apply2/#{job.id}" class="btn btn-primary btn-lg">
+                                    Aplicar ahora!
+                                </a>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- Apply -->
+    <template id="apply2">
+        <t t-call="website.layout">
+            <t t-set="additional_title">Aplicar</t>
+
+            <div id="wrap" class="container">
+                <nav aria-label="breadcrumb" class="mt-5">
+                    <ol class="breadcrumb ps-0 mb-0 pb-1">
+                        <li class="breadcrumb-item">
+                            <a href="/jobs" class="text-secondary fw-bold">Empleos</a>
+                        </li>
+                        <li class="breadcrumb-item active" aria-current="page">
+                            <a t-attf-href="/jobs/detail/#{slug(job)}">
+                                <span t-field="job.name"/>
+                            </a>
+                        </li>
+                    </ol>
+                </nav>
+                <h1 class="mb-4">
+                    Formulario de solicitud de empleo
+                </h1>
+                <span class="hidden" data-for="hr_recruitment_form2"
+                      t-att-data-values="{'department_id': job and job.department_id.id or '', 'job_id': job and job.id or ''}"/>
+                <div id="jobs_section" class="container">
+                    <div class="row">
+                        <section id="forms" class="col-12 col-md-9 s_website_form" data-vcss="001"
+                                 data-snippet="s_website_form">
+                            <div class="container">
+                                <form id="hr_recruitment_form2" action="/website/form3/" method="post"
+                                      enctype="multipart/form-data" class="o_mark_required row"
+                                      data-mark="*" data-model_name="hr.applicant"
+                                      data-success-mode="redirect" data-success-page="/job-thank-you-r"
+                                      hide-change-model="true">
+                                    <div class="s_website_form_rows row s_col_no_bgcolor">
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="char">
+                                                <label class="col-6 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="position_name">
+                                                    <span class="s_website_form_label_content">Puesto</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="position_name" type="text" readonly="true"
+                                                           class="form-control s_website_form_input"
+                                                           name="position_name" t-att-value="job.name"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="char">
+                                                <label class="col-6 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="company_name">
+                                                    <span class="s_website_form_label_content">Empresa</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="company_name" type="text" readonly="true"
+                                                           class="form-control s_website_form_input"
+                                                           name="company_name" t-att-value="companyName"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="char">
+                                                <label class="col-6 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="branch">
+                                                    <span class="s_website_form_label_content">Sucursales/Horarios
+                                                        disponibles:
+                                                    </span>
+                                                </label>
+                                                <div t-foreach="job.requisition_ids" t-as="req" class="col-sm">
+                                                    <t t-if="req.status == 30">
+                                                        <input type="checkbox"
+                                                               class="form-check-input s_website_form_input"
+                                                               id="requisition_id"
+                                                               name="requisition_id" t-att-value="req.id"/>
+                                                        <span class="fw-light"
+                                                              t-options='{"no_tag_br": True, "null_text": "Remote"}'>
+                                                            Sucursal<span t-field="req.branch_ids.name"/>:
+                                                            <t t-set="student" t-value="'No acepta estudiantes.'"></t>
+                                                            <t t-foreach="req.details" t-as="det">
+                                                                <span t-field="det.shift.name"/>,
+                                                                <t t-if="det.student == 'yes'">
+                                                                    <t t-set="student"
+                                                                       t-value="'Acepta estudiantes.'"></t>
+                                                                </t>
+                                                            </t>
+                                                            <span t-out="student"/>
+                                                        </span>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="selection">
+                                                <label class="col-6 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="about_vacancy">
+                                                    <span class="s_website_form_label_content">¿Cómo te enteraste de la
+                                                        vacante?
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input"
+                                                            name="about_vacancy" required="true">
+                                                        <t t-foreach="about_vacancy_options" t-as="option">
+                                                            <option t-att-value="option[0]">
+                                                                <t t-esc="option[1]"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="other_vacancy">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="selection">
+                                                <label class="col-6 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="other_reason">
+                                                    <span class="s_website_form_label_content">Otro</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="other_reason" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="other_reason"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="selection">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="previous_experience">
+                                                    <span class="s_website_form_label_content">¿Has laborado
+                                                        anteriormente con nosotros?
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input"
+                                                            name="previous_experience" required="">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="curp">
+                                                    <span class="s_website_form_label_content">CURP</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="curp" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="curp" required=""/>
+                                                    <span class="text-muted small">
+                                                        <a href="https://www.gob.mx/curp/" target="_blank">Consult
+                                                            CURP
+                                                        </a>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <script>
+                                        document.addEventListener("DOMContentLoaded", function() {
+                                        var aboutVacancySelect = document.querySelector("select[name='about_vacancy']");
+                                        var otherReasonSection = document.querySelector("[data-name='other_vacancy']");
+                                        var otherReasonInput = document.getElementById("other_reason");
+                                        otherReasonSection.style.display = 'none';
+                                        aboutVacancySelect.addEventListener("change", function() {
+                                        if (this.value === 'other') {
+                                        otherReasonSection.style.display = 'block';
+                                        otherReasonInput.setAttribute('required', 'true');
+                                        } else {
+                                        otherReasonSection.style.display = 'none';
+                                        otherReasonInput.removeAttribute('required');
+                                        }
+                                        });
+                                        document.getElementById("curp").addEventListener("input", function() {
+                                        this.value = this.value.toUpperCase();
+                                        });
+                                        });
+                                    </script>
+                                    <div class="s_website_form_rows row s_col_no_bgcolor">
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment1">
+                                                    <span class="s_website_form_label_content">Nombre(s)</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="recruitment1" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="partner_name" required=""
+                                                           data-fill-with="name"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="last_name">
+                                                    <span class="s_website_form_label_content">Apellido paterno</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="last_name" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="last_name" required=""/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="last_name2">
+                                                    <span class="s_website_form_label_content">Apellido materno</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="last_name2" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="last_name2"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment3">
+                                                    <span class="s_website_form_label_content">Teléfono celular</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="recruitment3" type="number"
+                                                           class="form-control s_website_form_input"
+                                                           name="partner_mobile"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="phone_number">
+                                                    <span class="s_website_form_label_content">Teléfono celular 2</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="phone_number" type="tel"
+                                                           class="form-control s_website_form_input"
+                                                           name="phone_number"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="desk_phone">
+                                                    <span class="s_website_form_label_content">Teléfono fijo</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="desk_phone" type="tel"
+                                                           class="form-control s_website_form_input"
+                                                           name="desk_phone"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required"
+                                             data-type="email" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment2">
+                                                    <span class="s_website_form_label_content">Correo electrónico</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="recruitment2" type="email"
+                                                           class="form-control s_website_form_input"
+                                                           name="email_from" required=""/>
+                                                    <div class="alert alert-warning mt-2" id="email-message"
+                                                         style="display:none;"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="date" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="birthdate">
+                                                    <span class="s_website_form_label_content">Fecha de nacimiento
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="birthdate" type="date"
+                                                           class="form-control s_website_form_input"
+                                                           name="birthdate" required=""/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-3 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-2 col-sm-auto s_website_form_label" for="age">
+                                                    <span class="s_website_form_label_content">Edad</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="age" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="age" required="" readonly="true"/>
+                                                </div>
+                                            </div>
+                                            <script>
+                                            </script>
+                                        </div>
+                                        <div class="col-3 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-2 col-sm-auto s_website_form_label" for="gender">
+                                                    <span class="s_website_form_label_content">Género</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input"
+                                                            name="gender" id="gender" readonly="true">
+                                                        <t t-foreach="gender_options" t-as="option">
+                                                            <option t-att-value="option[0]">
+                                                                <t t-esc="option[1]"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                                <script>
+                                                </script>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="birthplace">
+                                                    <span class="s_website_form_label_content">Ciudad de nacimiento
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="birthplace" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="birthplace"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="state_birth">
+                                                    <span class="s_website_form_label_content">Entidad federativa de
+                                                        nacimiento
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="state_birth" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="state_birth"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="has_rfc">
+                                                    <span class="s_website_form_label_content">¿Cuenta con RFC?</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input" name="has_rfc">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="rfc_number">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-2 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="rfc_number">
+                                                    <span class="s_website_form_label_content">RFC</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="rfc_number" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="rfc_number"/>
+                                                    <span class="text-muted small">
+                                                        <a href="https://www.sat.gob.mx/aplicacion/31274/consulta-tu-clave-de-rfc-mediante-curp"
+                                                           target="_blank">Consult RFC
+                                                        </a>
+                                                    </span>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="rfc_files">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="rfc_files">
+                                                    <span class="s_website_form_label_content">Adjuntar archivo CSF
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="rfc_files" type="file"
+                                                           class="form-control s_website_form_input"
+                                                           name="rfc_files"
+                                                           accept="application/pdf,image/png,image/jpg,image/jpeg"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="has_social_security">
+                                                    <span class="s_website_form_label_content">¿Cuenta con Número de
+                                                        Seguridad Social?
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input"
+                                                            name="has_social_security">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="social_security_number">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-2 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="social_security_number">
+                                                    <span class="s_website_form_label_content">NSS</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="social_security_number" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="social_security_number"/>
+                                                    <span class="text-muted small">
+                                                        <a href="https://imss.gob.mx/tramites/imss02008"
+                                                           target="_blank">Consult NSS
+                                                        </a>
+                                                    </span>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="nss_files">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="nss_files">
+                                                    <span class="s_website_form_label_content">Adjuntar archivo NSS
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="nss_files" type="file"
+                                                           class="form-control s_website_form_input"
+                                                           name="nss_files"
+                                                           accept="application/pdf,image/png,image/jpg,image/jpeg"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="current_address">
+                                                    <span class="s_website_form_label_content">Domicilio actual</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="current_address" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="current_address"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="exterior_number">
+                                                    <span class="s_website_form_label_content">No. Exterior</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="exterior_number" type="number"
+                                                           class="form-control s_website_form_input"
+                                                           name="exterior_number"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="interior_number">
+                                                    <span class="s_website_form_label_content">No. Interior</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="interior_number" type="number"
+                                                           class="form-control s_website_form_input"
+                                                           name="interior_number"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="colony">
+                                                    <span class="s_website_form_label_content">Colonia</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="colony" type="text" required="true"
+                                                           class="form-control s_website_form_input"
+                                                           name="colony"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="municipality">
+                                                    <span class="s_website_form_label_content">Municipio</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="municipality" type="text" required="true"
+                                                           class="form-control s_website_form_input"
+                                                           name="municipality"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="state">
+                                                    <span class="s_website_form_label_content">Estado</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="state" type="text" required="true"
+                                                           class="form-control s_website_form_input"
+                                                           name="state"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="postal_code">
+                                                    <span class="s_website_form_label_content">Código Postal</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="postal_code" type="text" required="true"
+                                                           class="form-control s_website_form_input"
+                                                           name="postal_code"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="between_streets">
+                                                    <span class="s_website_form_label_content">Entre calles</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="between_streets"
+                                                           class="form-control s_website_form_input"
+                                                           name="between_streets"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="additional_ref">
+                                                    <span class="s_website_form_label_content">Referencias adicionales
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="additional_ref"
+                                                           class="form-control s_website_form_input"
+                                                           name="additional_ref"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="address_details">
+                                                    <span class="s_website_form_label_content">Características del
+                                                        domicilio
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="address_details"
+                                                           class="form-control s_website_form_input"
+                                                           name="address_details"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="fiscal_address">
+                                                    <span class="s_website_form_label_content">Domicilio fiscal</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="fiscal_address" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="fiscal_address"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="exterior_number_fiscal">
+                                                    <span class="s_website_form_label_content">No. Exterior</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="exterior_number_fiscal" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="exterior_number_fiscal"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="interior_number_fiscal">
+                                                    <span class="s_website_form_label_content">No. Interior</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="interior_number_fiscal" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="interior_number_fiscal"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="colony_fiscal">
+                                                    <span class="s_website_form_label_content">Colonia</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="colony_fiscal" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="colony_fiscal"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="municipality_fiscal">
+                                                    <span class="s_website_form_label_content">Municipio</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="municipality_fiscal" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="municipality_fiscal"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="state_fiscal">
+                                                    <span class="s_website_form_label_content">Estado</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="state_fiscal" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="state_fiscal"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="postal_code_fiscal">
+                                                    <span class="s_website_form_label_content">Código Postal</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="postal_code_fiscal" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="postal_code_fiscal"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="selection">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="scholarship">
+                                                    <span class="s_website_form_label_content">Escolaridad</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input" name="scholarship"
+                                                            id="scholarship"
+                                                            required="">
+                                                        <t t-foreach="schoolarship_options" t-as="option">
+                                                            <option t-att-value="option[0]">
+                                                                <t t-esc="option[1]"/>
+                                                            </option>
+                                                        </t>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="other_scholarship">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="char">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="other_scholarship">
+                                                    <span class="s_website_form_label_content">Otro</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="other_scholarship" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="other_scholarship"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor" data-type="selection">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="is_studying">
+                                                    <span class="s_website_form_label_content">¿Estudia actualmente?
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input" name="is_studying"
+                                                            required="">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="current_schedule">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="current_schedule">
+                                                    <span class="s_website_form_label_content">Horario</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="current_schedule" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="current_schedule"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="current_degree">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="current_degree">
+                                                    <span class="s_website_form_label_content">Carrera</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="current_degree" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="current_degree"/>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="has_experience">
+                                                    <span class="s_website_form_label_content">Experiencia laboral
+                                                        actual/anterior
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input"
+                                                            name="has_experience">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="experience1_exp">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="section_experience1">
+                                                    <span class="s_website_form_label_content">
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <button id="section_experience1" name="section_experience1"
+                                                            class="btn btn-secondary" type="button">Experiencia laboral
+                                                        anterior 1
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="experience1">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="companyE1">
+                                                    <span class="s_website_form_label_content">
+                                                    </span>
+                                                    <span class="s_website_form_mark"></span>
+                                                </label>
+                                                <div class="col-8">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="companyE1">Empresa</label>
+                                                            <input type="text" class="form-control" id="companyE1"
+                                                                   name="companyE1"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="cityE1">Ciudad</label>
+                                                            <input type="text" class="form-control" id="cityE1"
+                                                                   name="cityE1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="periodE1">Periodo</label>
+                                                            <input type="number" class="form-control" id="periodE1"
+                                                                   name="periodE1"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="position">Puesto</label>
+                                                            <input type="text" class="form-control" id="positionE1"
+                                                                   name="positionE1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="salaryE1">Sueldo</label>
+                                                            <input type="number" class="form-control" id="salaryE1"
+                                                                   name="salaryE1"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="supervisorE1">Nombre del jefe directo</label>
+                                                            <input type="text" class="form-control" id="supervisorE1"
+                                                                   name="supervisorE1"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="referenceE1">No. Contacto para referencias
+                                                            </label>
+                                                            <input type="number" class="form-control" id="referenceE1"
+                                                                   name="referenceE1"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="reasonE1">Motivo de salida</label>
+                                                            <input type="text" class="form-control" id="reasonE1"
+                                                                   name="reasonE1"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="experience2_exp">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="section_experience2">
+                                                    <span class="s_website_form_label_content">
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <button id="section_experience2" name="section_experience2"
+                                                            class="btn btn-secondary" type="button">Experiencia laboral
+                                                        anterior 2
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="experience2">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="companyE2">
+                                                    <span class="s_website_form_label_content">
+                                                    </span>
+                                                    <span class="s_website_form_mark"></span>
+                                                </label>
+                                                <div class="col-8">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="companyE2">Empresa</label>
+                                                            <input type="text" class="form-control" id="companyE2"
+                                                                   name="companyE2"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="cityE2">Ciudad</label>
+                                                            <input type="text" class="form-control" id="cityE2"
+                                                                   name="cityE2"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="periodE2">Periodo</label>
+                                                            <input type="number" class="form-control" id="periodE2"
+                                                                   name="periodE2"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="positionE2">Puesto</label>
+                                                            <input type="text" class="form-control" id="positionE2"
+                                                                   name="positionE2"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="salaryE2">Sueldo</label>
+                                                            <input type="number" class="form-control" id="salaryE2"
+                                                                   name="salaryE2"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="supervisorE2">Nombre del jefe directo</label>
+                                                            <input type="text" class="form-control" id="supervisorE2"
+                                                                   name="supervisorE2"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="referenceE2">No. Contacto para referencias
+                                                            </label>
+                                                            <input type="number" class="form-control" id="referenceE2"
+                                                                   name="referenceE2"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="reasonE2">Motivo de salida</label>
+                                                            <input type="text" class="form-control" id="reasonE2"
+                                                                   name="reasonE2"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="experience3_exp">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="section_experience3">
+                                                    <span class="s_website_form_label_content">
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <button id="section_experience3" name="section_experience3"
+                                                            class="btn btn-secondary" type="button">Experiencia laboral
+                                                        anterior 3
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="experience3">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="companyE3">
+                                                    <span class="s_website_form_label_content">
+                                                    </span>
+                                                    <span class="s_website_form_mark"></span>
+                                                </label>
+                                                <div class="col-8">
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="companyE3">Empresa</label>
+                                                            <input type="text" class="form-control" id="companyE3"
+                                                                   name="companyE3"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="cityE3">Ciudad</label>
+                                                            <input type="text" class="form-control" id="cityE3"
+                                                                   name="cityE3"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="periodE3">Periodo</label>
+                                                            <input type="number" class="form-control" id="periodE3"
+                                                                   name="periodE3"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="positionE3">Puesto</label>
+                                                            <input type="text" class="form-control" id="positionE3"
+                                                                   name="positionE3"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="salaryE3">Sueldo</label>
+                                                            <input type="number" class="form-control" id="salaryE3"
+                                                                   name="salaryE3"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="supervisorE3">Nombre del jefe directo</label>
+                                                            <input type="text" class="form-control" id="supervisorE3"
+                                                                   name="supervisorE3"/>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-6">
+                                                            <label for="referenceE3">No. Contacto para referencias
+                                                            </label>
+                                                            <input type="number" class="form-control" id="referenceE3"
+                                                                   name="referenceE3"/>
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <label for="reasonE3">Motivo de salida</label>
+                                                            <input type="text" class="form-control" id="reasonE3"
+                                                                   name="reasonE3"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="ineTutor_document">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="ineTutor_document">
+                                                    <span class="s_website_form_label_content" id="complementLabel">
+                                                        Complement
+                                                    </span>
+                                                    <span class="s_website_form_mark" id="complementRequired"></span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="ineTutor_document" type="file"
+                                                           class="form-control s_website_form_input o_resume_input"
+                                                           name="ineTutor_document"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <script>
+                                            document.addEventListener("DOMContentLoaded", function() {
+                                            const multipleFiles = ["rfc_files", "nss_files","driver_files"];
+                                            multipleFiles.forEach(id => {
+                                            const inputElement = document.getElementById(id);
+                                            if (inputElement) {
+                                            inputElement.setAttribute('multiple', 'multiple');
+                                            }
+                                            });
+
+                                            // Lista de IDs de los elementos de entrada que deben ser numéricos
+                                            const numericInputIds = ["exterior_number",
+                                            "interior_number","recruitment3"];
+                                            numericInputIds.forEach(id => {
+                                            const inputElement = document.getElementById(id);
+                                            if (inputElement) {
+                                            inputElement.addEventListener("input", function(event) {
+                                            event.target.value = event.target.value.replace(/\D/g, '');
+                                            if(id="recruitment3"){
+                                            console.log("telefono");
+                                            if (event.target.value > 10) {
+                                            event.target.value = event.target.value.slice(0, 10);
+                                            }
+                                            }
+                                            });
+                                            }
+                                            });
+                                            //GET AGE AUTOMATICALLY
+                                            document.getElementById("birthdate").addEventListener("change", function() {
+                                            var birthdate = new Date(this.value);
+                                            var today = new Date();
+                                            var age = today.getFullYear() - birthdate.getFullYear();
+                                            var m = today.getMonth() - birthdate.getMonth();
+                                            if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate()&lt;
+                                            birthdate.getDate())) {
+                                            age--;
+                                            }
+                                            document.getElementById("age").value = age;
+                                            var ineTutorSec = document.querySelector("[data-name='ineTutor_document']");
+                                            var complementInput = document.getElementById("ineTutor_document");
+                                            var complementLabel = document.getElementById("complementLabel");
+                                            var complementRequired = document.getElementById("complementRequired");
+                                            if (age &lt; 18 ) {
+                                            complementLabel.innerText="INE Tutor";
+                                            complementRequired.innerText="*";
+                                            complementInput.setAttribute('required', 'true');
+                                            } else {
+                                            complementLabel.innerText="Complement";
+                                            complementRequired.innerText="";
+                                            complementInput.removeAttribute('required');
+                                            complementInput.setAttribute('multiple', 'multiple');
+                                            }
+                                            });
+                                            //Get gender
+                                            var genderSelect = document.getElementById("gender");
+                                            var curpInput = document.getElementById("curp");
+                                            document.getElementById("curp").addEventListener("change", function() {
+                                            var curp = this.value.toUpperCase();
+                                            //var genderChar = curp.charAt(10);
+
+                                            if (curp.length > 10) {
+                                            var genderChar = curp.charAt(10);
+
+                                            if (genderChar === 'H') {
+                                            genderSelect.value = 'male';
+                                            } else if (genderChar === 'M') {
+                                            genderSelect.value = 'female';
+                                            } else {
+                                            genderSelect.value = 'other';
+                                            }
+                                            // genderSelect.disabled = true;
+                                            } else {
+                                            genderSelect.value = 'other';
+                                            }
+                                            });
+                                            if (!curpInput.value || curpInput.value.length &lt;= 1) {
+                                            genderSelect.value = 'other';
+                                            //genderSelect.disabled = true;
+                                            }
+                                            //SCHOLARSHIP
+                                            var scholarshipSelect =
+                                            document.querySelector("select[name='scholarship']");
+                                            var otherScholarship =
+                                            document.querySelector("[data-name='other_scholarship']");
+                                            var otherScholarshipInput = document.getElementById("other_scholarship");
+                                            otherScholarship.style.display = 'none';
+
+                                            scholarshipSelect.addEventListener("change", function() {
+                                            if (this.value === 'other') {
+                                            otherScholarship.style.display = 'block';
+                                            otherScholarshipInput.setAttribute('required', 'true');
+                                            } else {
+                                            otherScholarship.style.display = 'none';
+                                            otherScholarshipInput.removeAttribute('required');
+                                            }
+                                            });
+                                            //CURRENT STUDYING
+                                            var is_studyingSelect =
+                                            document.querySelector("select[name='is_studying']");
+                                            var current_schedule =
+                                            document.querySelector("[data-name='current_schedule']");
+                                            var current_degree = document.querySelector("[data-name='current_degree']");
+
+                                            var current_scheduleReq = document.getElementById("current_schedule");
+                                            var current_degreeReq = document.getElementById("current_degree");
+
+                                            current_schedule.style.display = 'none';
+                                            current_degree.style.display = 'none';
+
+                                            is_studyingSelect.addEventListener("change", function() {
+                                            if (this.value === 'yes') {
+                                            current_schedule.style.display = 'block';
+                                            current_scheduleReq.setAttribute('required', 'true');
+                                            current_degree.style.display = 'block';
+                                            current_degreeReq.setAttribute('required', 'true');
+                                            } else {
+                                            current_schedule.style.display = 'none';
+                                            current_scheduleReq.removeAttribute('required');
+                                            current_degree.style.display = 'none';
+                                            current_degreeReq.removeAttribute('required');
+                                            }
+                                            });
+                                            //INE DOCUMENT
+                                            var ineSelect = document.querySelector("select[name='has_ine']");
+                                            var ineDocument = document.querySelector("[data-name='ine_document']");
+                                            var ineDocumentInput = document.getElementById("ine_document");
+                                            ineDocument.style.display = 'none';
+
+                                            ineSelect.addEventListener("change", function() {
+                                            if (this.value === 'yes') {
+                                            ineDocument.style.display = 'block';
+                                            ineDocumentInput.setAttribute('required', 'true');
+                                            } else {
+                                            ineDocument.style.display = 'none';
+                                            ineDocumentInput.removeAttribute('required');
+                                            }
+                                            });
+                                            //NSS
+                                            var nssSelect =
+                                            document.querySelector("select[name='has_social_security']");
+                                            var nssSection =
+                                            document.querySelector("[data-name='social_security_number']");
+                                            var nss_filesSection = document.querySelector("[data-name='nss_files']");
+                                            var nssInput = document.getElementById("social_security_number");
+
+                                            nssSection.style.display = 'none';
+                                            nss_filesSection.style.display = 'none';
+                                            nssSelect.addEventListener("change", function() {
+                                            if (this.value === 'yes') {
+                                            nssSection.style.display = 'block';
+                                            nss_filesSection.style.display = 'block';
+                                            nssInput.setAttribute('required', 'true');
+                                            } else {
+                                            nssSection.style.display = 'none';
+                                            nss_filesSection.style.display = 'none';
+                                            nssInput.removeAttribute('required');
+                                            }
+                                            });
+                                            //RFC
+                                            var rfcSelect = document.querySelector("select[name='has_rfc']");
+                                            var rfcSection = document.querySelector("[data-name='rfc_number']");
+                                            var rfc_filesSection = document.querySelector("[data-name='rfc_files']");
+                                            var rfcInput = document.getElementById("rfc_number");
+
+                                            rfcSection.style.display = 'none';
+                                            rfc_filesSection.style.display = 'none';
+                                            rfcSelect.addEventListener("change", function() {
+                                            if (this.value === 'yes') {
+                                            rfcSection.style.display = 'block';
+                                            rfc_filesSection.style.display = 'block';
+                                            rfcInput.setAttribute('required', 'true');
+                                            } else {
+                                            rfcSection.style.display = 'none';
+                                            rfc_filesSection.style.display = 'none';
+                                            rfcInput.removeAttribute('required');
+                                            }
+                                            });
+                                            document.getElementById("rfc_number").addEventListener("input", function() {
+                                            this.value = this.value.toUpperCase();
+                                            // Limitar a 13 caracteres
+                                            if (this.value.length > 13) {
+                                            this.value = this.value.slice(0, 13);
+                                            }
+                                            });
+                                            //CP limitado a 5 caracteres
+                                            document.getElementById("postal_code").addEventListener("input", function()
+                                            {
+                                            this.value = this.value.toUpperCase();
+                                            if (this.value.length > 5) {
+                                            this.value = this.value.slice(0, 5);
+                                            }
+                                            });
+                                            //DRIVER
+                                            var driverSelect =
+                                            document.querySelector("select[name='has_driver_license']");
+                                            var driverSection =
+                                            document.querySelector("[data-name='driver_license_number']");
+                                            var driverInput = document.getElementById("driver_license_number");
+                                            var validitySection =
+                                            document.querySelector("[data-name='driver_license_validity']");
+                                            var driver_filesSection =
+                                            document.querySelector("[data-name='driver_files']");
+                                            var validityInput = document.getElementById("driver_license_validity");
+
+                                            driverSection.style.display = 'none';
+                                            validitySection.style.display = 'none';
+                                            driver_filesSection.style.display = 'none';
+                                            driverSelect.addEventListener("change", function() {
+                                            if (this.value === 'yes') {
+                                            driverSection.style.display = 'block';
+                                            driver_filesSection.style.display = 'block';
+                                            driverInput.setAttribute('required', 'true');
+                                            validitySection.style.display = 'block';
+                                            validityInput.setAttribute('required', 'true');
+                                            } else {
+                                            driverSection.style.display = 'none';
+                                            driver_filesSection.style.display = 'none';
+                                            driverInput.removeAttribute('required');
+                                            validitySection.style.display = 'none';
+                                            validityInput.removeAttribute('required');
+                                            }
+                                            });
+                                            //OCULTAR CAMPOS
+                                            var linkedinProfileLabel =
+                                            document.querySelector('label[for="recruitment4"]');
+                                            var linkedinProfileInput = document.getElementById("recruitment4");
+                                            var linkedinIcon = document.querySelector('.fa-linkedin');
+
+                                            if (linkedinProfileLabel &amp;&amp; linkedinProfileInput &amp;&amp;
+                                            linkedinIcon) {
+                                            linkedinProfileInput.removeAttribute('required');
+                                            }
+                                            //EXPERIENCE
+                                            var experienceSelect =
+                                            document.querySelector("select[name='has_experience']");
+                                            var experience1_exp =
+                                            document.querySelector("[data-name='experience1_exp']");
+                                            var experience2_exp =
+                                            document.querySelector("[data-name='experience2_exp']");
+                                            var experience3_exp =
+                                            document.querySelector("[data-name='experience3_exp']");
+                                            var experience1Select =document.getElementById("section_experience1");
+                                            var experience2Select =document.getElementById("section_experience2");
+                                            var experience3Select =document.getElementById("section_experience3");
+                                            var experienceSection1 =
+                                            document.querySelector("[data-name='experience1']");
+                                            var experienceSection2 =
+                                            document.querySelector("[data-name='experience2']");
+                                            var experienceSection3 =
+                                            document.querySelector("[data-name='experience3']");
+
+                                            experienceSection1.style.display = 'none';
+                                            experienceSection2.style.display = 'none';
+                                            experienceSection3.style.display = 'none';
+
+                                            experience1_exp.style.display = 'none';
+                                            experience2_exp.style.display = 'none';
+                                            experience3_exp.style.display = 'none';
+                                            experienceSelect.addEventListener("change", function() {
+                                            if (this.value === 'yes') {
+                                            experience1_exp.style.display = 'block';
+                                            experience2_exp.style.display = 'block';
+                                            experience3_exp.style.display = 'block';
+                                            }else{
+                                            experience1_exp.style.display = 'none';
+                                            experience2_exp.style.display = 'none';
+                                            experience3_exp.style.display = 'none';}
+                                            });
+                                            experience1Select.addEventListener("click", function() {
+                                            if (experienceSection1.style.display === 'none') {
+                                            experienceSection1.style.display = 'block';
+                                            } else {
+                                            experienceSection1.style.display = 'none';
+                                            }
+                                            });
+                                            experience2Select.addEventListener("click", function() {
+                                            if (experienceSection2.style.display === 'none') {
+                                            experienceSection2.style.display = 'block';
+                                            } else {
+                                            experienceSection2.style.display = 'none';
+                                            }
+                                            });
+                                            experience3Select.addEventListener("click", function() {
+                                            if (experienceSection3.style.display === 'none') {
+                                            experienceSection3.style.display = 'block';
+                                            } else {
+                                            experienceSection3.style.display = 'none';
+                                            }
+                                            });
+                                            });
+                                        </script>
+
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required"
+                                             data-type="char" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment4">
+                                                    <span class="s_website_form_label_content">LinkedIn Profile</span>
+                                                </label>
+                                                <div class="col-sm" style="position: relative">
+                                                    <i class="fa fa-linkedin fa-2x m-1 o_linkedin_icon"
+                                                       style="max-height: 37px;"></i>
+                                                    <input id="recruitment4" type="text"
+                                                           class="form-control s_website_form_input pl64"
+                                                           placeholder="e.g. https://www.linkedin.com/in/fpodoo/"
+                                                           style="padding-left: 40px"
+                                                           name="linkedin_profile"
+                                                           data-fill-with="linkedin_profile"/>
+                                                    <div class="alert alert-warning mt-2" id="linkedin-message"
+                                                         style="display:none;"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_custom"
+                                             data-type="binary" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment6">
+                                                    <span class="s_website_form_label_content">Resume</span>
+                                                    <span t-if="job.administrative" class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="recruitment6" type="file"
+                                                           class="form-control s_website_form_input o_resume_input"
+                                                           name="Resume" t-att-required="job.administrative"
+                                                           accept="application/pdf"/>
+                                                    <span class="text-muted small">Provide either a resume file or a
+                                                        linkedin profile
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="has_driver_license">
+                                                    <span class="s_website_form_label_content">Do you have driver
+                                                        license?
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input"
+                                                            name="has_driver_license">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="driver_license_number">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-2 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="driver_license_number">
+                                                    <span class="s_website_form_label_content">Driver license number
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="driver_license_number" type="text"
+                                                           class="form-control s_website_form_input"
+                                                           name="driver_license_number"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="date" data-name="driver_license_validity">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-2 col-sm-auto s_website_form_label"
+                                                       style="width: 200px"
+                                                       for="driver_license_validity">
+                                                    <span class="s_website_form_label_content">Driver license validity
+                                                    </span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="driver_license_validity" type="date"
+                                                           class="form-control s_website_form_input"
+                                                           name="driver_license_validity"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="driver_files">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="driver_files">
+                                                    <span class="s_website_form_label_content">Driver License File
+                                                    </span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="driver_files" type="file"
+                                                           class="form-control s_website_form_input"
+                                                           name="driver_files"
+                                                           accept="application/pdf,image/png,image/jpg,image/jpeg"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="selection" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="has_ine">
+                                                    <span class="s_website_form_label_content">Do you have INE?</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <select class="form-control s_website_form_input" name="has_ine">
+                                                        <option value="yes">Si</option>
+                                                        <option value="no" selected="selected">No</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="char" data-name="ine_document">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="ine_document">
+                                                    <span class="s_website_form_label_content">INE Document</span>
+                                                    <span class="s_website_form_mark">*</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="ine_document" type="file"
+                                                           class="form-control s_website_form_input"
+                                                           name="ine_document"
+                                                           accept="application/pdf,image/png,image/jpg,image/jpeg"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field"
+                                             data-type="text" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment5">
+                                                    <span class="s_website_form_label_content">Short Introduction</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <textarea id="recruitment5"
+                                                              class="form-control s_website_form_input"
+                                                              placeholder="Optional introduction, or any question you might have about the job…"
+                                                              name="description" rows="5"></textarea>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_dnone">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment7">
+                                                    <span class="s_website_form_label_content">Job</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="recruitment7" type="hidden"
+                                                           class="form-control s_website_form_input"
+                                                           name="job_id"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_dnone">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="recruitment8">
+                                                    <span class="s_website_form_label_content">Department</span>
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input id="recruitment8" type="hidden"
+                                                           class="form-control s_website_form_input"
+                                                           name="department_id"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-0 py-2 s_website_form_field s_website_form_required s_website_form_model_required"
+                                             data-type="boolean" data-name="Field">
+                                            <div class="row s_col_no_resize s_col_no_bgcolor">
+                                                <label class="col-4 col-sm-auto s_website_form_label"
+                                                       style="width: 200px" for="terms_conditions">
+
+                                                </label>
+                                                <div class="col-sm">
+                                                    <input type="checkbox" class="form-check-input s_website_form_input"
+                                                           id="terms_conditions" name="terms_conditions"
+                                                           required="true"/>
+                                                    <a href="/privacy" target="blank">Estoy de acuerdo con los Términos
+                                                        y Condiciones y la privacidad de mis datos.
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 s_website_form_submit mb64" data-name="Submit Button">
+                                            <div style="width: 200px" class="s_website_form_label"/>
+                                            <a href="#" role="button" class="btn btn-primary btn-lg s_website_form_send"
+                                               id="apply-btn">I'm feeling lucky
+                                            </a>
+                                            <span id="s_website_form_result"></span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </section>
+                        <section class="col-12 col-md-3 ps-5">
+                            <a role="button" t-attf-href="/jobs/#{slug(job)}"
+                               class="btn btn-outline-primary btn-lg mb16 o_apply_description_link">
+                                <i class="oi oi-arrow-left"></i>
+                                Job Description
+                            </a>
+                            <div t-if="job.name" class="d-flex flex-column align-items-baseline">
+                                <span class="text-muted small">Job</span>
+                                <h6 t-field="job.name"/>
+                            </div>
+                            <div class="d-flex flex-column align-items-baseline">
+                                <span class="text-muted small">Location</span>
+                                <h6 t-if="job.address_id" t-field="job.address_id" t-options='{
+                                "widget": "contact",
+                                "fields": ["city"],
+                                "no_tag_br": True,
+                                "no_marker": True
+                            }'/>
+                                <h6 t-else="">Remote</h6>
+                            </div>
+                            <div t-if="job.department_id" class="d-flex flex-column align-items-baseline">
+                                <span class="text-muted small">Department</span>
+                                <h6 t-field="job.department_id"/>
+                            </div>
+                            <div t-if="job.contract_type_id" class="d-flex flex-column align-items-baseline">
+                                <span class="text-muted small">Employment Type</span>
+                                <h6 t-field="job.contract_type_id"/>
+                            </div>
+                            <hr t-if="job.job_details" class="w-50 my-3"/>
+                            <div t-field="job.job_details"/>
+                        </section>
+                    </div>
+                </div>
+                <div class="oe_structure mt-2"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- Thank You -->
+    <record id="thankyou_r" model="website.page">
+        <field name="url">/job-thank-you-r</field>
+        <field name="is_published">True</field>
+        <field name="website_indexed" eval="False"/>
+        <field name="name">Thank you (Recruitment)</field>
+        <field name="type">qweb</field>
+        <field name="key">website_hr_recruitment.thankyou</field>
+        <field name="arch" type="xml">
+            <t name="Thank you (Recruitment)" t-name="website_hr_recruitment.thankyou">
+                <t t-if="request.session.get('form_builder_model_model', '') == 'hr.applicant'">
+                    <t t-set="job_sudo" t-value="request.website._website_form_last_record().sudo().job_id"/>
+                </t>
+                <t t-call="website.layout">
+                    <div id="wrap">
+                        <div class="oe_structure"/>
+                        <div id="jobs_thankyou" class="container">
+                            <div class="row pt24 pb24">
+                                <div class="col pt24 pb24 text-center">
+                                    <h1 class="fw-bolder">Congratulations!</h1>
+                                    <p class="fw-light pb24">
+                                        Your application has been posted successfully,
+                                        <br class="mb-2"/>
+                                        We usually respond within 3 days...
+                                    </p>
+                                    <img class="img-fluid o_we_custom_image"
+                                         t-attf-style="width:{{ '50%' if (job_sudo and job_sudo.user_id) else '25%' }} !important;"
+                                         src="/website_hr_recruitment/static/src/img/job_congratulations.svg"
+                                         alt="Congratulations!"/>
+                                    <div class="row" id="o_recruitment_thank_cta">
+                                        <div class="col-lg-12 text-center mt32 mb48">
+                                            <p>
+                                                <span class="h5 fw-light">In the meantime,</span>
+                                                <br/>
+                                                <span class="h3 mt8 mb32 fw-bold">Do you want to apply for another
+                                                    position?
+                                                </span>
+                                            </p>
+                                            <a role="button" href="/vacancy" class="btn btn-primary btn-lg">Apply now
+                                            </a>
+                                            <a role="button" href="/" class="btn btn-primary btn-lg ms-3">Not now</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- HR Recruiter Block -->
+                                <t t-if="job_sudo and job_sudo.user_id">
+                                    <div class="col-lg-4 align-self-center ps-4 o_cc o_cc2 rounded">
+                                        <section class="s_text_block pt24" data-snippet="s_text_block" data-name="Text">
+                                            <div class="container">
+                                                <p class="text-center mb-0 fs-3 lead">Your <b>contact</b> information
+                                                    is:
+                                                </p>
+                                            </div>
+                                        </section>
+                                        <section class="s_company_team pt12" data-snippet="s_company_team"
+                                                 data-name="Team">
+                                            <div class="container-fluid">
+                                                <div class="row justify-content-center">
+                                                    <div class="o_jobs_hr_recruiter col-10 o_cc o_cc1 mt24 p-4 border border-primary rounded shadow">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-lg-5 pb16 o_not_editable">
+                                                                <img t-att-src="image_data_uri(job_sudo.user_id.avatar_256)"
+                                                                     class="img-fluid" loading="lazy"/>
+                                                            </div>
+                                                            <div class="col-lg-7 px-1">
+                                                                <h2 class="o_default_snippet_text text-truncate"
+                                                                    t-field="job_sudo.user_id.name"/>
+                                                                <p class="fw-light text-truncate"
+                                                                   t-field="job_sudo.user_id.job_title"/>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <ul class="list-unstyled mb-0">
+                                                                <li t-if="job_sudo.user_id.work_phone">
+                                                                    <i class="fa fa-phone fa-fw me-2"></i>
+                                                                    <span class="o_force_ltr"
+                                                                          t-field="job_sudo.user_id.work_phone"/>
+                                                                </li>
+                                                                <li class="d-inline-flex align-items-baseline">
+                                                                    <i class="fa fa-envelope fa-fw me-2"></i>
+                                                                    <span>
+                                                                        <a class="text-break"
+                                                                           t-attf-href="mailto:#{job_sudo.user_id.email}"
+                                                                           t-field="job_sudo.user_id.email"/>
+                                                                    </span>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                        <section class="s_text_block pt24" data-snippet="s_text_block" data-name="Text">
+                                            <div class="container">
+                                                <p class="lead alert px-0">
+                                                    I usually <strong>answer applications within 3 days</strong>.
+                                                    <br/>
+                                                    <br/>
+                                                    The next step is either a call or a meeting in our offices.
+                                                    <br/>
+                                                    <br/>
+                                                    Feel free to <strong>contact me if you want a faster
+                                                    feedback
+                                                </strong> or if you don't get news from me
+                                                    quickly enough.
+                                                </p>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                        <div class="oe_structure"/>
+                    </div>
+                </t>
+            </t>
+        </field>
+    </record>
+
+</odoo>

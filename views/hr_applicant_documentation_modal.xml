@@ -1,0 +1,20 @@
+<odoo>
+    <record id="hr_applicant_view_request_documentation" model="ir.ui.view">
+        <field name="name">hr.applicant.request_documentation</field>
+        <field name="model">hr_applicant_doc</field>
+        <field name="arch" type="xml">
+             <form string="Request Documentation">
+                <label for="datetimeSession" />
+                <field name="datetimeSession"/><br/>
+                 <label for="place" />
+                <field name="place"/><br/>
+                 <label for="contactSession" />
+                <field name="contactSession"/><br/>
+                 <label for="workDate" />
+                <field name="workDate"/><br/>
+                 <label for="weekly_schedule" />
+                <field name="weekly_schedule"/><br/>
+             </form>
+        </field>
+    </record>
+</odoo>
